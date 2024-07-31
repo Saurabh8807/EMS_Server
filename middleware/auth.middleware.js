@@ -1,5 +1,5 @@
 import iwt from 'jsonwebtoken'
-import User from '../models/user.models.js'
+import User from '../models/user.model.js'
 import { ApiError } from '../utils/ApiError.js'
 import { asyncHandler } from '../utils/ayncHandler.js'
 
@@ -22,20 +22,28 @@ const protect = asyncHandler(async (req, res, next)=>{
     }
 })
 
-const admin = (req, res, next) =>{
+const admin = asyncHandler(async(req, res, next) =>{
     if(req.user && req.user.role === 'admin'){
         next();
     }else{
         throw new ApiError(401, 'Not authorized as an admin')
     }
-}
+})
 
-const employee = (req, res, next)=>{
+const employee = asyncHandler(async(req, res, next)=>{
     if(req.user && req.user.role === 'employee'){
         next()
     }else{
         throw new ApiError(401, 'Not authorized as an employee')
     }
-}
+})
 
-export {protect, admin, employee}
+const hr = asyncHandler(async(req, res, next)=>{
+    if(req.user && req.user.designation === 'hr'){
+        next()
+    }else{
+        throw new ApiError(401, 'Not authorized as an hr')
+    }
+})
+
+export {protect, admin, employee, hr}

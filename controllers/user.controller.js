@@ -1,2 +1,2 @@
-import User from '../models/user.models.js'
-import generateToken from '../utils/generateToken.js'
+import User from '../models/user.model.js'
+import generateTokens from '../utils/generateTokens.js'
