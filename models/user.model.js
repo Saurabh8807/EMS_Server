@@ -1,40 +1,69 @@
 import mongoose, { Schema } from 'mongoose'
 import bcrypt from 'bcryptjs'
-import Address from './address.model';
+// import Address from './address.model';
 import jwt from "jsonwebtoken"
 
 const userSchema = new mongoose.Schema({
-    name:{
-        type:String,
-        required:true
-    },
-    email:{
-        type:String,
-        required:true,
-        unique:true
-    },
-    password:{
-        type:String,
-        required:true
-    },
-    address:{
-        type:Schema.Types.ObjectId,
-        ref:'Address'
-    },
-    role:{
-        type:String,
-        enum:['admin','employee'],
-        default:'employee'
-    },
-    designation:{
-        type:String,
-        enum:['hr','employee','javascript-backend','javascript-frontend','php','dotnet','ios'],
-        default:'employee'
-    },
-    refreshToken: {
-        type: String
-    }
-})
+  employeeId: {
+    type: String,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  address: {
+    type: Schema.Types.ObjectId,
+    ref: "Address",
+  },
+  role: {
+    type: String,
+    enum: ["admin", "employee"],
+    default: "employee",
+  },
+  designation: {
+    type: String,
+    enum: [
+      "hr",
+      "employee",
+      "javascript-backend",
+      "javascript-frontend",
+      "php",
+      "dotnet",
+      "ios",
+    ],
+    default: "employee",
+  },
+  gender: {
+    type: String,
+    required: true,
+  },
+  merital_status: {
+    type: String,
+    required: true,
+  },
+
+  joininng_date: {
+    type: Date,
+    default: Date.now,
+  },
+  date_of_birth: {
+    type: Date,
+    default: Date.now,
+  },
+  refreshToken: {
+    type: String,
+  },
+});
 
 userSchema.pre('save',async(next)=>{
     if(!this.isModified('password')){
