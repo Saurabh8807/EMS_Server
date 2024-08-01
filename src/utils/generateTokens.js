@@ -1,5 +1,5 @@
 import User from '../models/user.model.js'
-import { ApiError } from './ApiError.js'
+import { ApiError } from './apiError.js'
 
 const generateTokens = async(id) =>{
     try {

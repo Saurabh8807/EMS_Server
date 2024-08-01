@@ -17,6 +17,11 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  phone:{
+    type: String,
+    required: true,
+    unique: true,
+  },
   password: {
     type: String,
     required: true,
@@ -43,23 +48,33 @@ const userSchema = new mongoose.Schema({
     ],
     default: "employee",
   },
+  teamLead:{
+    type: Schema.Types.ObjectId,
+    ref: "User",
+  },
+  isTeamLead:{
+    type: Boolean,
+    default: false,
+  },
   gender: {
     type: String,
     required: true,
   },
-  merital_status: {
+  marital_status: {
     type: String,
     required: true,
   },
 
-  joininng_date: {
+  joining_date: {
     type: Date,
     default: Date.now,
   },
+
   date_of_birth: {
     type: Date,
     default: Date.now,
   },
+
   refreshToken: {
     type: String,
   },
