@@ -1,16 +1,18 @@
-import iwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import User from '../models/user.model.js'
 import { ApiError } from '../utils/apiError.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 
-const protect = asyncHandler(async (req, res, next)=>{
-    let token;
+const verifyJWT = asyncHandler(async (req, res, next)=>{
 
-    if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
         try {
-            token = req.headers.authorization.splits(' ')[1];
-            const decode = jwt.verify(token)
-            req.user = await User.findById(decode.id).select('-password')
+            const token = req.cookies?.accessToken ||  req.header("Authorization")?.replace("Bearer ", "");
+            if (!token) {
+                throw new ApiError(401, "Unauthorized request")
+            }
+    
+            const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+            req.user = await User.findById(decode._id).select('-password -refreshToken')
             next()
         } catch (error) {
             throw new ApiError(401, 'Not authorized, token failed')          
@@ -19,7 +21,6 @@ const protect = asyncHandler(async (req, res, next)=>{
         if(!token){
             throw new ApiError(401, 'Not authorized, no token')
         }
-    }
 })
 
 const admin = asyncHandler(async(req, res, next) =>{
@@ -46,4 +47,4 @@ const hr = asyncHandler(async(req, res, next)=>{
     }
 })
 
-export {protect, admin, employee, hr}
+export {verifyJWT, admin, employee, hr}
