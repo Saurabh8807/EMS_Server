@@ -1,8 +1,9 @@
 import User from "../models/user.model.js";
-import generateTokens from "../utils/generateTokens.js";
+import {generateTokens} from "../utils/generateTokens.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
+import jwt from "jsonwebtoken"
 
 export const registerEmployee = asyncHandler(async (req, res, next) => {
 
@@ -22,22 +23,6 @@ export const registerEmployee = asyncHandler(async (req, res, next) => {
     joining_date,
     date_of_birth,
   } = req.body;
-  // console.log(
-  //   `employeeId: ${employeeId}\n` +
-  //   `name: ${name}\n` +
-  //   `email: ${email}\n` +
-  //   `phone: ${phone}\n` +
-  //   `password: ${password}\n` +
-  //   `address: ${address}\n` +
-  //   `role: ${role}\n` +
-  //   `designation: ${designation}\n` +
-  //   `teamLead: ${teamLead}\n` +
-  //   `isTeamLead: ${isTeamLead}\n` +
-  //   `gender: ${gender}\n` +
-  //   `marital_status: ${marital_status}\n` +
-  //   `joining_date: ${joining_date}\n` +
-  //   `date_of_birth: ${date_of_birth}`
-  // );
   
   if (
     employeeId == "" &&
@@ -60,7 +45,6 @@ export const registerEmployee = asyncHandler(async (req, res, next) => {
 
   const existedUser = await User.findOne({email});
 
-  console.log("existedUser ===>", existedUser)
   if (existedUser) {
     throw new ApiError(400, "Employee ID or email already exists.");
   }
@@ -82,21 +66,13 @@ export const registerEmployee = asyncHandler(async (req, res, next) => {
     date_of_birth,
   });
 
-//   const createdUser = await User.findById(user._id).select(
-//     "-password -refreshToken"
-//   );
-//   console.log(createdUser);
-
-//   if (!createdUser) {
-//     throw new ApiError(500, "Failed to create user.");
-//   }
 
   return res
     .status(201)
     .json(new ApiResponse(200, "Employee Register Success"));
 });
 
-const loginEmployee = asyncHandler(async(req,res,next)=>{
+export const loginEmployee = asyncHandler(async(req,res,next)=>{
     const {email, password} = req.body;
     if(!email ||!password){
         throw new ApiError(400, "Email and password are required.");
@@ -107,9 +83,7 @@ const loginEmployee = asyncHandler(async(req,res,next)=>{
     if(!user){
         throw new ApiError(401, "Invalid email or password.");
     }
-
     const isPasswordValid = await user.matchPassword(password);
-
     if(!isPasswordValid){
         throw new ApiError(401, "Invalid email or password.");
     }
@@ -117,11 +91,14 @@ const loginEmployee = asyncHandler(async(req,res,next)=>{
     const {accessToken, refreshToken} = await generateTokens(user._id)
 
     user.refreshToken =refreshToken;
-
+    const options = {
+      httpOnly: true,
+      secure: true
+  }
     return res
     .status(200)
-    .cookie("accessToken", accessToken)
-    .cookie("refreshToken", refreshToken)
+    .cookie("accessToken", accessToken,options)
+    .cookie("refreshToken", refreshToken,options)
     .json(
         new ApiResponse(
             200,
@@ -136,7 +113,8 @@ const loginEmployee = asyncHandler(async(req,res,next)=>{
 
 })
 
-const logout = asyncHandler(async(req, res)=>{
+
+export const logout = asyncHandler(async(req, res)=>{
   await User.findByIdAndUpdate(
     req.user._id,
     {
@@ -148,15 +126,18 @@ const logout = asyncHandler(async(req, res)=>{
       new:true
     }
   )
-
+  const options = {
+    httpOnly: true,
+    secure: true
+}
   return res
    .status(200)
-   .clearCookie("accessToken")
-   .clearCookie("refreshToken")
+   .clearCookie("accessToken" , options)
+   .clearCookie("refreshToken", options)
    .json(new ApiResponse(200,{},"User Logged Out"))
 })
 
-const refreshAccessToken = asyncHandler(async(req, res)=>{
+export const refreshAccessToken = asyncHandler(async(req, res)=>{
   const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
 
   if( !incomingRefreshToken){
@@ -169,7 +150,7 @@ const refreshAccessToken = asyncHandler(async(req, res)=>{
       process.env.REFRESH_TOKEN_SECRET
     )
 
-    const user = await User.findById(decodeToken._id).select('-password')
+    const user = await User.findById(decodeToken.id).select('-password')
     
     if(!user){
       throw new ApiError(401, "Invalid refresh token.")
