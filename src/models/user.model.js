@@ -31,22 +31,12 @@ const userSchema = new mongoose.Schema({
     ref: "Address",
   },
   role: {
-    type: String,
-    enum: ["admin", "employee"],
-    default: "employee",
+    type: Schema.Types.ObjectId,
+    ref: "Role",
   },
   designation: {
-    type: String,
-    enum: [
-      "hr",
-      "employee",
-      "javascript-backend",
-      "javascript-frontend",
-      "php",
-      "dotnet",
-      "ios",
-    ],
-    default: "employee",
+    type: Schema.Types.ObjectId,
+    ref: "Designation",
   },
   teamLead:{
     type: Schema.Types.ObjectId,
@@ -78,7 +68,7 @@ const userSchema = new mongoose.Schema({
   refreshToken: {
     type: String,
   },
-});
+},{timestamps: true});
 
 userSchema.pre('save',async function(next){
     if(!this.isModified('password')){
