@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  isActive:{
+    type:Boolean,
+    require:true
+  },
   address: {
     type: Schema.Types.ObjectId,
     ref: "Address",
@@ -54,7 +58,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
+  avatarUrl: {
+    type: String,
+    required: true,
+    default:
+      "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
+  },
   joining_date: {
     type: Date,
     default: Date.now,
@@ -89,8 +98,8 @@ userSchema.methods.generateAccessToken = async function(){
     return jwt.sign(
         {
             id:this.id,
-            role:this.role,
-            designation:this.designation
+            role:this.role.name,
+            designation:this.designation.name
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
@@ -100,11 +109,12 @@ userSchema.methods.generateAccessToken = async function(){
 }
 
 userSchema.methods.generateRefreshToken = async function(){
+  // console.log("this.role =>",this.role)
     return jwt.sign(
         {
             id:this.id,
-            role:this.role,
-            designation:this.designation
+            role:this.role.name,
+            designation:this.designation.name
         },
         process.env.REFRESH_TOKEN_SECRET,
         {

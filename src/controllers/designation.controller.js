@@ -22,7 +22,7 @@ export const createDesignation = asyncHandler(async(req,res)=>{
         description,
         employeeCount:0
     })
-    console.log(createDesignation)
+    // console.log(createDesignation)
 
     return res
         .status(201)

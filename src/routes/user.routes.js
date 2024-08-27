@@ -1,14 +1,29 @@
-import {Router} from "express";
-// import { admin } from "../middleware/auth.middleware";
-import { registerEmployee,loginEmployee,refreshAccessToken,logout } from "../controllers/user.controller.js";
-import {verifyJWT,admin,hr } from "../middleware/auth.middleware.js"
+import { Router } from "express";
+import {
+  getUserById,
+  getAllUsers,
+  getUserByRole,
+  getUserByDesignation,
+  updateUserById,
+  deactivateUserById,
+  activateUserById,
+} from "../controllers/user.controller.js";
+import { verifyJWT, admin, hr , adminOrHr } from "../middleware/auth.middleware.js";
 
 const userRoutes = Router();
 
-userRoutes.post('/register',registerEmployee )
-userRoutes.post('/login' ,loginEmployee )
-userRoutes.post('/refreshTokens',refreshAccessToken )
-userRoutes.post('/logout',verifyJWT,logout )
+userRoutes.get("/:id", verifyJWT, getUserById);
 
+userRoutes.get("/", getAllUsers);
 
-export default userRoutes
+userRoutes.get("/role/:id", verifyJWT, adminOrHr, getUserByRole);
+
+userRoutes.get("/designation/:id", verifyJWT, adminOrHr, getUserByDesignation);
+
+userRoutes.put("/:id", verifyJWT, admin, updateUserById);
+
+userRoutes.put("/:id/deactivate", verifyJWT, admin, deactivateUserById);
+
+userRoutes.put("/:id/activate", verifyJWT, admin, activateUserById);
+
+export default userRoutes;

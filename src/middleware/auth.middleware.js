@@ -4,19 +4,21 @@ import { ApiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const verifyJWT = asyncHandler(async (req, res, next) => {
-    const token =
-      req.cookies?.accessToken ||
-      req.header("Authorization")?.replace("Bearer ", "");
-
+  const token =
+  req.cookies?.accessToken ||
+  req.header("Authorization")?.replace("Bearer ", "");
+  // console.log("In verify Jwt =>",token)
+    // console.log(token)
     if (!token) {
       throw new ApiError(401, "Unauthorized request")
     }
 
     const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    console.log(decode)
+    // console.log(decode)
     const user = await User.findById(decode.id).select(
       "-password -refreshToken"
     );
+
 
     if (!user) {
       throw new ApiError(401, 'Not authorized, token failed')
@@ -32,14 +34,16 @@ const admin = asyncHandler(async (req, res, next) => {
     const token =
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
-
     if (!token) {
       throw new ApiError(401, "Unauthorized request")
     }
 
     const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    console.log(decode)
 
+    // console.log("admin decode =>",decode)
+    // console.log("admin decode.role =>",decode.role)
+    // console.log("admin decode.role.name =>",decode.role.name)
+    // console.log(decode.role.admin)
     if (decode.role !== "admin") {
       throw new ApiError(403, 'Unauthorized, not an admin')
     }
@@ -68,6 +72,8 @@ const admin = asyncHandler(async (req, res, next) => {
 //        }
 // })
 
+
+
 const hr = asyncHandler(async (req, res, next) => {
     const token =
       req.cookies?.accessToken ||
@@ -87,4 +93,27 @@ const hr = asyncHandler(async (req, res, next) => {
   
 });
 
-export { verifyJWT, admin, hr };
+const adminOrHr = asyncHandler(async (req, res, next) => {
+  const token =
+    req.cookies?.accessToken ||
+    req.header("Authorization")?.replace("Bearer ", "");
+
+  if (!token) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+
+  const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  // console.log("adminOrHr decode =>",decode)
+  // console.log("adminOrHr decode.role =>",decode.role)
+  // console.log("adminOrHr decode.role.name =>",decode.role.name)
+  // console.log(decode.role !== "admin")
+  // console.log(decode.role !== "hr")
+// console.log(decode.role !== "admin" || decode.role !== "hr")
+  if (decode.role !== "admin" && decode.role !== "hr") {
+    throw new ApiError(403, "Unauthorized, not an admin or HR");
+  }
+  console.log("AdminOrhR Passed......")
+  next();
+});
+
+export { verifyJWT, admin, hr, adminOrHr};
