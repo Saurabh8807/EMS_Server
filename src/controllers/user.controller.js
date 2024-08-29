@@ -18,8 +18,8 @@ export const getUserById = asyncHandler(async (req, res) => {
   });
 
   export const getAllUsers = asyncHandler(async(req,res)=>{
-    console.log(req.query)
-    console.log(req.query.search)
+    // console.log(req.query)
+    // console.log(req.query.search)
     const keyword = req.query.search ?
     {
       $or:[

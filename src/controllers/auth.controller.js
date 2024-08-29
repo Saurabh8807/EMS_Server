@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import Birthday from "../models/birthDay.model.js";
 import Role from "../models/role.model.js";
 import Designation from "../models/designation.model.js";
 import { generateTokens } from "../utils/generateTokens.js";
@@ -91,7 +92,28 @@ export const registerEmployee = asyncHandler(async (req, res) => {
       joining_date,
       date_of_birth,
     });
-    // console.log("ok");
+
+    if(createdUser){
+      const birthDate = new Date(date_of_birth);
+      const month = birthDate.getMonth() + 1;
+      const day = birthDate.getDate();
+      const year = birthDate.getFullYear();
+      const wishes=[]
+      const createdBirthday = await Birthday.create({
+        user: createdUser._id,
+        month,
+        day,
+        year,
+        wishes
+      });
+      await createdBirthday.save();
+
+      if(!createdBirthday){
+        throw new ApiError(404,"No Birthday Created")
+      }  
+    }
+
+
     return res
     .status(201)
     .json(new ApiResponse(201, createdUser, "Employee Register Success"));

@@ -6,11 +6,11 @@ import {verifyJWT,admin,hr } from "../middleware/auth.middleware.js"
 
 const designationRoutes = Router()
 
-designationRoutes.post('/',createDesignation)
-designationRoutes.get('/',getAllDesignation)
-designationRoutes.get('/:id',getDesignationById)
-designationRoutes.put('/:id',updateDesignation)
-designationRoutes.delete('/:id',deleteDesignation)
+designationRoutes.post('/',verifyJWT,createDesignation)
+designationRoutes.get('/',verifyJWT,getAllDesignation)
+designationRoutes.get('/:id',verifyJWT,getDesignationById)
+designationRoutes.put('/:id',verifyJWT,updateDesignation)
+designationRoutes.delete('/:id',verifyJWT,deleteDesignation)
 
 export default designationRoutes
 
